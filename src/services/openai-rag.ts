@@ -63,9 +63,12 @@ class OpenAIRAGService {
     // Hardcoded API key for testing
     this.apiKey = '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';
     
-    // Debug log (remove in production)
-    console.log('RAG API Key loaded:', this.apiKey.substring(0, 20) + '...');
-    console.log('RAG API Key length:', this.apiKey.length);
+    // Detailed debug logs
+    console.log('🔑 RAG Service Constructor Called');
+    console.log('🔑 RAG API Key loaded:', this.apiKey.substring(0, 20) + '...');
+    console.log('🔑 RAG API Key length:', this.apiKey.length);
+    console.log('🔑 RAG API Key starts with sk-:', this.apiKey.startsWith('sk-'));
+    console.log('🔑 RAG Full API Key (first 50 chars):', this.apiKey.substring(0, 50));
   }
 
   static getInstance(): OpenAIRAGService {
@@ -103,6 +106,11 @@ class OpenAIRAGService {
     };
 
     try {
+      console.log('🚀 RAG Initializing conversation...');
+      console.log('🚀 RAG URL:', `${this.baseUrl}/responses`);
+      console.log('🚀 RAG Request params:', requestParams);
+      console.log('🚀 RAG Authorization header:', `Bearer ${this.apiKey.substring(0, 20)}...`);
+
       const response = await fetch(`${this.baseUrl}/responses`, {
         method: 'POST',
         headers: {
@@ -112,12 +120,19 @@ class OpenAIRAGService {
         body: JSON.stringify(requestParams)
       });
 
+      console.log('📡 RAG Init Response status:', response.status);
+      console.log('📡 RAG Init Response ok:', response.ok);
+      console.log('📡 RAG Init Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
+        console.error('❌ RAG Init Response not ok, status:', response.status);
         const errorData = await response.json();
+        console.error('❌ RAG Init Error data:', errorData);
         throw new Error(`OpenAI API Error: ${errorData.error?.message || 'Unknown error'}`);
       }
 
       const data = await response.json();
+      console.log('✅ RAG Init Success data:', data);
 
       // Store response ID for conversation continuity
       conversationStorage.set(conversationId, {
@@ -132,6 +147,7 @@ class OpenAIRAGService {
         responseId: data.id
       };
     } catch (error) {
+      console.error('❌ RAG Init Error:', error);
       if (error instanceof Error) {
         throw error;
       }
@@ -193,6 +209,11 @@ class OpenAIRAGService {
     }
 
     try {
+      console.log('🚀 RAG Making API call...');
+      console.log('🚀 RAG URL:', `${this.baseUrl}/responses`);
+      console.log('🚀 RAG Request params:', requestParams);
+      console.log('🚀 RAG Authorization header:', `Bearer ${this.apiKey.substring(0, 20)}...`);
+
       const response = await fetch(`${this.baseUrl}/responses`, {
         method: 'POST',
         headers: {
@@ -202,12 +223,19 @@ class OpenAIRAGService {
         body: JSON.stringify(requestParams)
       });
 
+      console.log('📡 RAG Response status:', response.status);
+      console.log('📡 RAG Response ok:', response.ok);
+      console.log('📡 RAG Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
+        console.error('❌ RAG Response not ok, status:', response.status);
         const errorData = await response.json();
+        console.error('❌ RAG Error data:', errorData);
         throw new Error(`OpenAI API Error: ${errorData.error?.message || 'Unknown error'}`);
       }
 
       const data = await response.json();
+      console.log('✅ RAG Success data:', data);
 
       // Update conversation storage with new response ID
       conversationStorage.set(conversationId, {
@@ -228,6 +256,7 @@ class OpenAIRAGService {
         responseId: data.id
       };
     } catch (error) {
+      console.error('❌ RAG Call Error:', error);
       if (error instanceof Error) {
         throw error;
       }
