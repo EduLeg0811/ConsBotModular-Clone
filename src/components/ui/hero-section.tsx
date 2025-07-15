@@ -36,7 +36,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           </h1>
           <br />
           <br />
-          <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed font-medium">
+          <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed font-normal">
             Olá conscienciólogo!<br />
             Bem-vindo à caixa de ferramentas de IA para a pesquisa conscienciológica. <br />
             Cada ferramenta é ideal para uma tarefa específica.<br />
