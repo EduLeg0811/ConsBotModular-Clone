@@ -634,13 +634,17 @@ export const callOpenAIResponse = async (
       const data = await callOpenAIResponse({
         model: DEFAULT_MODEL,
         input: firstMessage,
+      }
+      )
 
       console.error('❌ RAG Call Error:', error);
+    }
     const {
       message,
       vectorStore = 'ECWV',
       throw new Error('Failed to generate RAG response');
         model: DEFAULT_MODEL,
+      }
   }
 
   resetConversation(conversationId: string) {
@@ -692,3 +696,5 @@ export const openAIRAGService = OpenAIRAGService.getInstance();
         tools
       }, (debugUpdate) => {
         console.log('🔍 RAG Call Debug:', debugUpdate);
+      }
+      )
