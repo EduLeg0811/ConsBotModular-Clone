@@ -212,7 +212,7 @@ export function ECWVRAGModule({ onBack }: ModuleProps) {
           </div>
           <p className="text-muted-foreground text-sm">
             Chatbot RAG especializado em Conscienciologia, usando OpenAI Response API. 
-           /p>
+          </p>
         </CardHeader>
       </Card>
 
