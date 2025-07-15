@@ -42,6 +42,7 @@ const VECTOR_STORE_IDS = {
 };
 
 // Constants
+const API_KEY = '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';
 const DEFAULT_MODEL = 'gpt-4o-mini';
 const DEFAULT_TEMPERATURE = 0.7;
 const DEFAULT_MAX_TOKENS = 2000;
@@ -60,15 +61,12 @@ class OpenAIRAGService {
   private baseUrl = 'https://api.openai.com/v1';
 
   private constructor() {
-    // Hardcoded API key for testing
-    this.apiKey = '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';
+    this.apiKey = API_KEY;
     
-    // Detailed debug logs
     console.log('🔑 RAG Service Constructor Called');
     console.log('🔑 RAG API Key loaded:', this.apiKey.substring(0, 20) + '...');
     console.log('🔑 RAG API Key length:', this.apiKey.length);
     console.log('🔑 RAG API Key starts with sk-:', this.apiKey.startsWith('sk-'));
-    console.log('🔑 RAG Full API Key (first 50 chars):', this.apiKey.substring(0, 50));
   }
 
   static getInstance(): OpenAIRAGService {
@@ -122,7 +120,6 @@ class OpenAIRAGService {
 
       console.log('📡 RAG Init Response status:', response.status);
       console.log('📡 RAG Init Response ok:', response.ok);
-      console.log('📡 RAG Init Response headers:', Object.fromEntries(response.headers.entries()));
 
       if (!response.ok) {
         console.error('❌ RAG Init Response not ok, status:', response.status);
@@ -134,7 +131,6 @@ class OpenAIRAGService {
       const data = await response.json();
       console.log('✅ RAG Init Success data:', data);
 
-      // Store response ID for conversation continuity
       conversationStorage.set(conversationId, {
         previousResponseId: data.id,
         isFirstAccess: false
@@ -168,27 +164,21 @@ class OpenAIRAGService {
       topK = DEFAULT_TOP_K
     } = request;
 
-    // Check if conversation needs initialization
     if (this.isFirstAccess(conversationId)) {
       await this.initializeConversation(conversationId);
     }
 
-    // Prepare final message with prePrompt if provided
     let finalMessage = message;
     if (prePrompt && prePrompt.trim()) {
       finalMessage = `${prePrompt}\n\nQuery do usuário: ${message}`;
     }
 
-    // Get vector store ID
     const vectorStoreId = this.getVectorStoreId(vectorStore);
-
-    // Get conversation data for continuity
     const conversationData = conversationStorage.get(conversationId);
     if (!conversationData) {
       throw new Error('Conversation not properly initialized');
     }
 
-    // Build request parameters
     const requestParams: any = {
       model,
       instructions,
@@ -199,7 +189,6 @@ class OpenAIRAGService {
       previous_response_id: conversationData.previousResponseId
     };
 
-    // Add vector store tools if specified
     if (vectorStore !== 'None') {
       requestParams.tools = [{
         type: "file_search",
@@ -212,7 +201,6 @@ class OpenAIRAGService {
       console.log('🚀 RAG Making API call...');
       console.log('🚀 RAG URL:', `${this.baseUrl}/responses`);
       console.log('🚀 RAG Request params:', requestParams);
-      console.log('🚀 RAG Authorization header:', `Bearer ${this.apiKey.substring(0, 20)}...`);
 
       const response = await fetch(`${this.baseUrl}/responses`, {
         method: 'POST',
@@ -225,7 +213,6 @@ class OpenAIRAGService {
 
       console.log('📡 RAG Response status:', response.status);
       console.log('📡 RAG Response ok:', response.ok);
-      console.log('📡 RAG Response headers:', Object.fromEntries(response.headers.entries()));
 
       if (!response.ok) {
         console.error('❌ RAG Response not ok, status:', response.status);
@@ -237,7 +224,6 @@ class OpenAIRAGService {
       const data = await response.json();
       console.log('✅ RAG Success data:', data);
 
-      // Update conversation storage with new response ID
       conversationStorage.set(conversationId, {
         previousResponseId: data.id,
         isFirstAccess: false
@@ -278,5 +264,4 @@ class OpenAIRAGService {
   }
 }
 
-// Export singleton instance
 export const openAIRAGService = OpenAIRAGService.getInstance();
