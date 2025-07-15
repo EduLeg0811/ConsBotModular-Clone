@@ -23,9 +23,9 @@ const VECTOR_STORE_OPTIONS = [
 ];
 
 const MODEL_OPTIONS = [
-  { value: 'gpt-4o-nano', label: 'GPT-4o Nano' },
-  { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
-  { value: 'gpt-4o', label: 'GPT-4o' }
+  { value: 'gpt-4.1-nano-2025-04-14', label: 'GPT-4.1 Nano' },
+  { value: 'gpt-4.1-mini-2025-04-14', label: 'GPT-4.1 Mini' },
+  { value: 'gpt-4.1-2025-04-14', label: 'GPT-4.1' }
 ];
 
 interface SettingsDialogProps {
