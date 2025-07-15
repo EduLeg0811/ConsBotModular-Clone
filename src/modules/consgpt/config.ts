@@ -5,7 +5,7 @@ import { ConsGptModule } from "./ConsGptModule";
 export const ConsGptConfig: ModuleConfig = {
   id: 'consgpt',
   title: 'Cons.GPT',
-  description: 'ChatBot OpenAI ChtaGPT.',
+  description: 'Assistente ChatGPT (OpenAI) com os tratados conscienciológicos.',
   icon: MessageCircle,
   badge: 'Available',
   component: ConsGptModule
