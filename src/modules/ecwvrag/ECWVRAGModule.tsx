@@ -73,7 +73,7 @@ export function ECWVRAGModule({ onBack }: ModuleProps) {
       setIsInitialized(true);
       
       toast({
-        title: "ECWV RAG Bot Inicializado",
+        title: "RAG Bot Inicializado",
         description: "Conversa iniciada com sucesso usando a base ECWV.",
       });
     } catch (error) {
@@ -130,7 +130,7 @@ export function ECWVRAGModule({ onBack }: ModuleProps) {
         maxTokens: settings.maxTokens,
         model: settings.model,
         conversationId,
-        instructions: "Você é um assistente especialista em Conscienciologia com acesso à base de conhecimento ECWV. Responda de forma objetiva e precisa baseado nas fontes fornecidas. Sempre preserve a marcação original de Markdown das fontes originais (asteriscos).",
+        instructions: "Você é um assistente especialista em Conscienciologia com acesso à base de conhecimento da Conscienciologia. Responda de forma objetiva e precisa baseado nas fontes fornecidas. Sempre preserve a marcação original de Markdown das fontes originais (asteriscos).",
         topK: 20
       };
 
@@ -227,9 +227,8 @@ export function ECWVRAGModule({ onBack }: ModuleProps) {
             </div>
           </div>
           <p className="text-muted-foreground text-sm">
-            Chatbot RAG especializado com base de conhecimento ECWV usando OpenAI Response API. 
-            Respostas baseadas em fontes verificadas da Conscienciologia.
-          </p>
+            Chatbot RAG especializado em Conscienciologia, usando OpenAI Response API. 
+           /p>
         </CardHeader>
       </Card>
 
@@ -241,7 +240,7 @@ export function ECWVRAGModule({ onBack }: ModuleProps) {
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                 <Brain className="h-12 w-12 text-muted-foreground" />
                 <div>
-                  <h3 className="text-lg font-medium">ECWV RAG Bot</h3>
+                  <h3 className="text-lg font-medium">RAG Bot</h3>
                   <p className="text-muted-foreground">Configure sua API key para começar</p>
                 </div>
                 <Button onClick={() => setShowSettings(true)}>
