@@ -194,7 +194,12 @@ export const callOpenAIResponse = async (
     
     throw new Error(`OpenAI API Error: ${errorMessage}`);
   }
-};
+};</parameter>
+</invoke>
+<invoke name="file">
+<parameter name="filePath">src/services/openai-rag.ts</parameter>
+<parameter name="contentType">diff</parameter>
+<parameter name="content">@@ .. @@
 
 // Conversation storage for Response API continuity
 const conversationStorage = new Map<string, {
@@ -282,7 +287,7 @@ class OpenAIRAGService {
     const {
       message,
       vectorStore = 'ECWV',
-      model = DEFAULT_MODEL,
+      model: DEFAULT_MODEL,
       temperature = DEFAULT_TEMPERATURE,
       maxTokens = DEFAULT_MAX_TOKENS,
       instructions = DEFAULT_INSTRUCTION_PROMPT,
