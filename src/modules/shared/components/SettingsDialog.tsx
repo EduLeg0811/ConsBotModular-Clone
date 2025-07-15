@@ -62,7 +62,7 @@ export function SettingsDialog({
               Modelo
             </Label>
             <Select
-              value={localSettings.model || 'gpt-4o-mini'}
+              value={localSettings.model || 'gpt-4.1-nano-2025-04-14'}
               onValueChange={(value) => setLocalSettings(prev => ({ ...prev, model: value }))}
             >
               <SelectTrigger className="mt-1">
