@@ -4,7 +4,7 @@ import { OpenAISettings } from '../types';
 const DEFAULT_SETTINGS: OpenAISettings = {
   temperature: 0.7,
   maxTokens: 2000,
-  model: 'gpt-4o-mini',
+  model: 'gpt-4.1-nano-2025-04-14',
   instructions: 'Você é um assistente especialista em Conscienciologia. Responda de forma objetiva e precisa baseado nas fontes fornecidas.',
   vectorStore: 'ALLWV',
   topK: 20
