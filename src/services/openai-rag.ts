@@ -147,7 +147,7 @@ class OpenAIRAGService {
   /**
    * Maps friendly vector store names to actual OpenAI vector store IDs
    */
-  private getVectorStoreId(vectorStore: string = 'ECWV'): string {
+  private getVectorStoreId(vectorStore: string = 'ALLWV'): string {
     const storeId = VECTOR_STORE_IDS[vectorStore];
     if (!storeId) {
       throw new Error(`Unknown vector store: ${vectorStore}`);
