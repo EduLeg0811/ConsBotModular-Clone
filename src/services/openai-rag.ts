@@ -60,12 +60,7 @@ interface ResponseAPIParams {
 // CONSTANTS AND CONFIGURATION
 // ================================================================================================
 
-const DEFAULT_MODEL = 'gpt-4o-mini';
-const DEFAULT_TEMPERATURE = 0.7;
-const DEFAULT_MAX_TOKENS = 2000;
-const DEFAULT_TOP_K = 50;
-const DEFAULT_INSTRUCTION_PROMPT = 'Você é um assistente especialista em Conscienciologia. Responda de forma objetiva e precisa baseado nas fontes fornecidas.';
-const DEFAULT_PRE_PROMPT = '';
+
 
 // Vector Store IDs mapping - Maps friendly names to actual OpenAI vector store IDs
 const VECTOR_STORE_IDS: Record<string, string> = {
@@ -81,6 +76,16 @@ const VECTOR_STORE_IDS: Record<string, string> = {
   'CCG': 'vs_683f36f2daa88191a1055950845e221b',
   'EDUNOTES': 'vs_68726a6993fc8191ba63b14a9243076a'
 };
+
+
+const DEFAULT_MODEL = 'gpt-4o-mini';
+const DEFAULT_TEMPERATURE = 0.7;
+const DEFAULT_MAX_TOKENS = 2000;
+const DEFAULT_TOP_K = 50;
+const DEFAULT_INSTRUCTION_PROMPT = 'Você é um assistente especialista em Conscienciologia. Responda de forma objetiva e precisa baseado nas fontes fornecidas.';
+const DEFAULT_PRE_PROMPT = '';
+const VECT_SELECTED = 'ALLWV';
+
 
 // ================================================================================================
 // CONVERSATION STORAGE MANAGEMENT
@@ -147,7 +152,7 @@ class OpenAIRAGService {
   /**
    * Maps friendly vector store names to actual OpenAI vector store IDs
    */
-  private getVectorStoreId(vectorStore: string = 'ALLWV'): string {
+  private getVectorStoreId(vectorStore: string = VECT_SELECTED): string {
     const storeId = VECTOR_STORE_IDS[vectorStore];
     if (!storeId) {
       throw new Error(`Unknown vector store: ${vectorStore}`);
@@ -194,7 +199,7 @@ class OpenAIRAGService {
       temperature = DEFAULT_TEMPERATURE,
       instructions = DEFAULT_INSTRUCTION_PROMPT,
       prePrompt = DEFAULT_PRE_PROMPT,
-      vectorStore = 'ECWV',
+      vectorStore = VECT_SELECTED,
       topK = DEFAULT_TOP_K
     } = options;
 
