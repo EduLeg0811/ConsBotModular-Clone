@@ -5,7 +5,7 @@ import { ECWVRAGModule } from "./ECWVRAGModule";
 export const ecwvragConfig: ModuleConfig = {
   id: 'ecwvrag',
   title: 'RAG Bot',
-  description: 'Chatbot RAG especializado com base de conhecimento ECWV usando Response API.',
+  description: 'Chatbot RAG especializado em Conscienciologia.',
   icon: Brain,
   badge: 'RAG',
   component: ECWVRAGModule
