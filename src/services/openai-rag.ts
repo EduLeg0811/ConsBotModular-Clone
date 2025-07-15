@@ -776,6 +776,9 @@ export const callOpenAIResponse = async (
     // DEBUG: Log the response if debug callback is provided
     if (onDebugUpdate) {
       onDebugUpdate({
+      }
+      )
+    }
     try {
       const data = await callOpenAIResponse({
         model: DEFAULT_MODEL,
@@ -809,6 +812,8 @@ export const callOpenAIResponse = async (
       }, (debugUpdate) => {
         console.log('🔍 RAG Call Debug:', debugUpdate);
         data: data,
+      }
+      )
       temperature = DEFAULT_TEMPERATURE,
       finalMessage = `${prePrompt}\n\nQuery do usuário: ${message}`;
     }
@@ -824,6 +829,7 @@ export const callOpenAIResponse = async (
           totalTokens: data.usage.total_tokens
         } : undefined,
         model: data.model || model,
+    }
 
     const tools = vectorStore !== 'None' ? [{
       type: "file_search",
@@ -834,3 +840,6 @@ export const callOpenAIResponse = async (
     try {
       throw new Error('Failed to generate RAG response');
         model: DEFAULT_MODEL,
+    }
+  }
+}
