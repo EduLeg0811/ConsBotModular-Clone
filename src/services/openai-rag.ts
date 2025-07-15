@@ -538,7 +538,7 @@ class OpenAIRAGService {
       vectorStore = 'ECWV',
       throw new Error('Failed to generate RAG response');
         model: DEFAULT_MODEL,
-  }
+      }
 
   resetConversation(conversationId: string) {
     conversationStorage.delete(conversationId);
@@ -589,3 +589,5 @@ export const openAIRAGService = OpenAIRAGService.getInstance();
         tools
       }, (debugUpdate) => {
         console.log('🔍 RAG Call Debug:', debugUpdate);
+      }
+      )
