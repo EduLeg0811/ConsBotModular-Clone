@@ -42,7 +42,6 @@ const VECTOR_STORE_IDS = {
 };
 
 // Constants
-const API_KEY = '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';
 const DEFAULT_MODEL = 'gpt-4o-mini';
 const DEFAULT_TEMPERATURE = 0.7;
 const DEFAULT_MAX_TOKENS = 2000;
@@ -61,12 +60,17 @@ class OpenAIRAGService {
   private baseUrl = 'https://api.openai.com/v1';
 
   private constructor() {
-    this.apiKey = API_KEY;
+    this.apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
     
     console.log('🔑 RAG Service Constructor Called');
     console.log('🔑 RAG API Key loaded:', this.apiKey.substring(0, 20) + '...');
     console.log('🔑 RAG API Key length:', this.apiKey.length);
     console.log('🔑 RAG API Key starts with sk-:', this.apiKey.startsWith('sk-'));
+    
+    if (!this.apiKey) {
+      console.error('❌ No OpenAI API key found in environment variables');
+      console.error('❌ Please set VITE_OPENAI_API_KEY in your .env file');
+    }
   }
 
   static getInstance(): OpenAIRAGService {

@@ -26,8 +26,8 @@ export class OpenAIService {
   private baseUrl = 'https://api.openai.com/v1';
 
   private constructor() {
-    // Hardcoded API key for testing
-    this.apiKey = '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';
+    // Get API key from environment variables
+    this.apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
     
     // Detailed debug logs
     console.log('🔑 OpenAI Service Constructor Called');
@@ -35,6 +35,11 @@ export class OpenAIService {
     console.log('🔑 API Key length:', this.apiKey.length);
     console.log('🔑 API Key starts with sk-:', this.apiKey.startsWith('sk-'));
     console.log('🔑 Full API Key (first 50 chars):', this.apiKey.substring(0, 50));
+    
+    if (!this.apiKey) {
+      console.error('❌ No OpenAI API key found in environment variables');
+      console.error('❌ Please set VITE_OPENAI_API_KEY in your .env file');
+    }
   }
 
   static getInstance(): OpenAIService {
