@@ -2,6 +2,7 @@ import { chatbotConfig } from './chatbot';
 import { bibliomanciaConfig } from './bibliomancia';
 import { ConsGptConfig } from './consgpt';
 import { consLmConfig } from './conslm';
+import { ecwvragConfig } from './ecwvrag';
 import { ModuleConfig } from './shared/types';
 import { Brain, Palette, Code, Zap } from 'lucide-react';
 
@@ -10,7 +11,8 @@ export const availableModules: ModuleConfig[] = [
   chatbotConfig,
   bibliomanciaConfig,
   ConsGptConfig,
-  consLmConfig
+  consLmConfig,
+  ecwvragConfig
 ];
 
 // Coming soon modules (for display purposes)
