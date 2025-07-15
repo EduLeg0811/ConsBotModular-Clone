@@ -40,7 +40,6 @@ export function ConsLmModule({ onBack }: ModuleProps) {
             <div>
               <h3 className="text-2xl font-semibold mb-2">Cons.LM</h3>
               <p className="text-muted-foreground max-w-md mx-auto">
-                Assistente NotebookLM com conhecimentos especializados em Conscienciologia
               </p>
             </div>
             <Button 
