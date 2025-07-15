@@ -1,6 +1,7 @@
 import { chatbotConfig } from './chatbot';
 import { bibliomanciaConfig } from './bibliomancia';
 import { ConsGptConfig } from './consgpt';
+import { consLmConfig } from './conslm';
 import { ModuleConfig } from './shared/types';
 import { Brain, Palette, Code, Zap } from 'lucide-react';
 
@@ -8,19 +9,12 @@ import { Brain, Palette, Code, Zap } from 'lucide-react';
 export const availableModules: ModuleConfig[] = [
   chatbotConfig,
   bibliomanciaConfig,
-  ConsGptConfig
+  ConsGptConfig,
+  consLmConfig
 ];
 
 // Coming soon modules (for display purposes)
 export const comingSoonModules = [
-  {
-    id: 'conslm',
-    title: 'Cons.LM',
-    description: 'Assistente NotebookLM (Gemini) com os tratados conscienciológicos.',
-    icon: Palette,
-    badge: 'Available',
-    disabled: true
-  },
   {
     id: 'knowledge-base',
     title: 'Knowledge Base',
