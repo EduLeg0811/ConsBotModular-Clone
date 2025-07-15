@@ -29,9 +29,12 @@ export class OpenAIService {
     // Hardcoded API key for testing
     this.apiKey = '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';
     
-    // Debug log (remove in production)
-    console.log('API Key loaded:', this.apiKey.substring(0, 20) + '...');
-    console.log('API Key length:', this.apiKey.length);
+    // Detailed debug logs
+    console.log('🔑 OpenAI Service Constructor Called');
+    console.log('🔑 API Key loaded:', this.apiKey.substring(0, 20) + '...');
+    console.log('🔑 API Key length:', this.apiKey.length);
+    console.log('🔑 API Key starts with sk-:', this.apiKey.startsWith('sk-'));
+    console.log('🔑 Full API Key (first 50 chars):', this.apiKey.substring(0, 50));
   }
 
   static getInstance(): OpenAIService {
@@ -63,6 +66,12 @@ export class OpenAIService {
     ];
 
     try {
+      console.log('🚀 Making OpenAI API call...');
+      console.log('🚀 URL:', `${this.baseUrl}/chat/completions`);
+      console.log('🚀 Model:', model);
+      console.log('🚀 Messages:', messages);
+      console.log('🚀 Authorization header:', `Bearer ${this.apiKey.substring(0, 20)}...`);
+      
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
@@ -80,8 +89,14 @@ export class OpenAIService {
         })
       });
 
+      console.log('📡 Response status:', response.status);
+      console.log('📡 Response ok:', response.ok);
+      console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
+        console.error('❌ Response not ok, status:', response.status);
         const errorData = await response.json();
+        console.error('❌ Error data:', errorData);
         throw new Error(`OpenAI API Error: ${errorData.error?.message || 'Unknown error'}`);
       }
 
