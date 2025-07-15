@@ -251,3 +251,5 @@ class OpenAIRAGService {
 
 // Export singleton instance
 export const openAIRAGService = OpenAIRAGService.getInstance();
+
+export { openAIRAGService }
