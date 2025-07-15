@@ -60,10 +60,13 @@ class OpenAIRAGService {
   private baseUrl = 'https://api.openai.com/v1';
 
   private constructor() {
-    this.apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    this.apiKey = import.meta.env.VITE_OPENAI_API_KEY?.trim();
     if (!this.apiKey) {
       throw new Error('VITE_OPENAI_API_KEY not found in environment variables');
     }
+    
+    // Debug log (remove in production)
+    console.log('RAG API Key loaded:', this.apiKey.substring(0, 20) + '...');
   }
 
   static getInstance(): OpenAIRAGService {
