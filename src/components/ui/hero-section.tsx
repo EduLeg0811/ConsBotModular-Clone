@@ -26,7 +26,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           <br />
           <br />
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-medium bg-gradient-hero bg-clip-text text-transparent leading-tight">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-medium bg-gradient-hero bg-clip-text leading-tight">
             Cons.IA
             <br />
             <span className="relative">
