@@ -64,6 +64,8 @@ export function ModuleCard({
           Abrir Toolbox
         </Button>
       </CardContent>
+    )
+    }
     </Card>
   );
 }
