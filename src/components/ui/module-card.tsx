@@ -41,6 +41,9 @@ export function ModuleCard({
               <CardTitle className="text-lg font-semibold text-foreground">{title}</CardTitle>
               {badge && (
                 <span className="inline-block px-3 py-1 text-xs font-semibold badge-accent rounded-full mt-2 shadow-soft">
+                <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full mt-2 shadow-soft ${
+                  badge === 'Available' ? 'badge-available' : 'badge-accent'
+                }`}>
                   {badge}
                 </span>
               )}
