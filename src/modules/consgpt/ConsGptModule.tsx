@@ -27,7 +27,7 @@ export function ConsGptModule({ onBack }: ModuleProps) {
             </div>
           </div>
           <p className="text-muted-foreground">
-            ChatBot OpenAI ChatGPT especializado em Conscienciologia. Clique no botão abaixo para acessar.
+            OpenAI ChatGPT especializado em Conscienciologia. Clique no botão abaixo para acessar.
           </p>
         </CardHeader>
       </Card>
@@ -40,8 +40,6 @@ export function ConsGptModule({ onBack }: ModuleProps) {
             <div>
               <h3 className="text-2xl font-semibold mb-2">Cons.GPT</h3>
               <p className="text-muted-foreground max-w-md mx-auto">
-                Assistente ChatGPT (OpenAI) especializado nos tratados conscienciológicos. 
-                Acesse diretamente no ChatGPT para começar a conversar.
               </p>
             </div>
             <Button 
