@@ -25,22 +25,22 @@ export function ModuleCard({
   return (
     <Card 
       className={cn(
-        "module-card relative overflow-hidden bg-card/50 backdrop-blur-sm border-border/50 hover:border-primary/30",
+        "module-card relative overflow-hidden card-elegant",
         disabled && "opacity-50 cursor-not-allowed",
         className
       )}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/8 to-accent/8 animate-float" />
       <CardHeader className="relative">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-lg bg-primary/10 text-primary">
+            <div className="p-3 rounded-xl bg-gradient-primary text-white shadow-soft">
               <Icon className="h-6 w-6" />
             </div>
             <div>
-              <CardTitle className="text-lg">{title}</CardTitle>
+              <CardTitle className="text-lg font-medium">{title}</CardTitle>
               {badge && (
-                <span className="inline-block px-2 py-1 text-xs font-medium bg-accent/20 text-accent-foreground rounded-md mt-1">
+                <span className="inline-block px-3 py-1 text-xs font-medium bg-gradient-accent text-white rounded-full mt-2 shadow-soft">
                   {badge}
                 </span>
               )}
@@ -55,8 +55,8 @@ export function ModuleCard({
         <Button 
           onClick={onClick}
           disabled={disabled}
-          variant="outline"
-          className="w-full interactive-hover"
+          variant="default"
+          className="w-full interactive-hover btn-primary font-medium"
         >
           Abrir Toolbox
         </Button>

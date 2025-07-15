@@ -67,40 +67,40 @@ const Index = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 px-4 bg-muted/30">
+      <section className="py-16 px-4 bg-gradient-subtle">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center space-y-4 mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold">
+            <h2 className="text-3xl md:text-4xl font-medium">
               Why Choose Our Platform?
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <Brain className="h-8 w-8 text-primary" />
+              <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto shadow-soft">
+                <Brain className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold">Unified Intelligence</h3>
+              <h3 className="text-xl font-medium">Unified Intelligence</h3>
               <p className="text-muted-foreground">
                 All modules share the same powerful AI core, ensuring consistent quality and performance across every tool.
               </p>
             </div>
 
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <Zap className="h-8 w-8 text-primary" />
+              <div className="w-16 h-16 bg-gradient-accent rounded-2xl flex items-center justify-center mx-auto shadow-soft">
+                <Zap className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold">Lightning Fast</h3>
+              <h3 className="text-xl font-medium">Lightning Fast</h3>
               <p className="text-muted-foreground">
                 Optimized architecture delivers rapid responses and seamless interactions for the best user experience.
               </p>
             </div>
 
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                <Code className="h-8 w-8 text-primary" />
+              <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto shadow-soft">
+                <Code className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-xl font-semibold">Extensible Design</h3>
+              <h3 className="text-xl font-medium">Extensible Design</h3>
               <p className="text-muted-foreground">
                 Modular architecture makes it easy to add new capabilities and customize existing tools for your needs.
               </p>

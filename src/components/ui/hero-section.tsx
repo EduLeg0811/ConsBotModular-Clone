@@ -19,19 +19,19 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
       {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto space-y-8 animate-fade-up">
         <div className="space-y-4">
-          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 px-4 py-2">
+          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 px-4 py-2 shadow-soft">
             <Sparkles className="h-4 w-4 mr-2" />
             Conscienciologia
           </Badge>
           <br />
           <br />
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent leading-tight">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-medium bg-gradient-hero bg-clip-text text-transparent leading-tight">
             Cons.IA
             <br />
             <span className="relative">
               Assistant Hub
-              <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-hero rounded-full" />
+              <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-accent rounded-full shadow-glow" />
             </span>
           </h1>
           <br />
@@ -50,7 +50,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           <Button 
             size="lg" 
             onClick={onGetStarted}
-            className="interactive-hover bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg shadow-glow"
+            className="interactive-hover btn-primary px-8 py-3 text-lg font-medium"
           >
             <Zap className="h-5 w-5 mr-2" />
             Abrir Toolbox
@@ -60,7 +60,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           <Button 
             size="lg" 
             variant="outline"
-            className="interactive-hover px-8 py-3 text-lg"
+            className="interactive-hover px-8 py-3 text-lg font-medium glass"
           >
             Me ajude a escolher!
           </Button>
@@ -68,15 +68,15 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-2xl mx-auto">
           <div className="text-center space-y-2">
-            <div className="text-2xl font-bold text-primary">8</div>
+            <div className="text-2xl font-medium text-primary">8</div>
             <div className="text-sm text-muted-foreground">Módulos Disponíveis</div>
           </div>
           <div className="text-center space-y-2">
-            <div className="text-2xl font-bold text-primary">5</div>
+            <div className="text-2xl font-medium text-primary">5</div>
             <div className="text-sm text-muted-foreground">Ferramentas de Pesquisa</div>
           </div>
           <div className="text-center space-y-2">
-            <div className="text-2xl font-bold text-primary">3</div>
+            <div className="text-2xl font-medium text-primary">3</div>
             <div className="text-sm text-muted-foreground">Ferramentas de Escrita</div>
           </div>
         </div>
