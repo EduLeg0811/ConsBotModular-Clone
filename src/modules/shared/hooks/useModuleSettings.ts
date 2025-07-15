@@ -2,10 +2,10 @@ import { useState, useCallback } from 'react';
 import { OpenAISettings } from '../types';
 
 const DEFAULT_SETTINGS: OpenAISettings = {
-  apiKey: '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',
+  apiKey: '', // Removed default API key - now loaded from env
   temperature: 0.7,
   maxTokens: 2000,
-  model: 'gpt-4.1-nano'
+  model: 'gpt-4o-mini'
 };
 
 export function useModuleSettings(moduleId: string) {
@@ -19,7 +19,8 @@ export function useModuleSettings(moduleId: string) {
     localStorage.setItem(`${moduleId}-settings`, JSON.stringify(newSettings));
   }, [moduleId]);
 
-  const isConfigured = Boolean(settings.apiKey);
+  // API key is now always configured via environment variables
+  const isConfigured = true;
 
   return {
     settings,

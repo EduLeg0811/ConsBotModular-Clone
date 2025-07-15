@@ -56,20 +56,21 @@ const conversationStorage = new Map<string, {
 
 class OpenAIRAGService {
   private static instance: OpenAIRAGService;
-  private apiKey: string | null = null;
+  private apiKey: string;
   private baseUrl = 'https://api.openai.com/v1';
 
-  private constructor() {}
+  private constructor() {
+    this.apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    if (!this.apiKey) {
+      throw new Error('VITE_OPENAI_API_KEY not found in environment variables');
+    }
+  }
 
   static getInstance(): OpenAIRAGService {
     if (!OpenAIRAGService.instance) {
       OpenAIRAGService.instance = new OpenAIRAGService();
     }
     return OpenAIRAGService.instance;
-  }
-
-  setApiKey(apiKey: string) {
-    this.apiKey = apiKey;
   }
 
   setBaseUrl(url: string) {
@@ -86,10 +87,6 @@ class OpenAIRAGService {
   }
 
   async initializeConversation(conversationId: string): Promise<OpenAIRAGResponse> {
-    if (!this.apiKey) {
-      throw new Error('OpenAI API key not configured');
-    }
-
     if (!this.isFirstAccess(conversationId)) {
       throw new Error('Conversation already initialized');
     }
@@ -141,10 +138,6 @@ class OpenAIRAGService {
   }
 
   async OpenAI_Call(request: OpenAIRAGRequest): Promise<OpenAIRAGResponse> {
-    if (!this.apiKey) {
-      throw new Error('OpenAI API key not configured');
-    }
-
     const {
       message,
       vectorStore = 'ECWV',

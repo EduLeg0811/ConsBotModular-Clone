@@ -22,22 +22,10 @@ export function BibliomanciaModule({ onBack }: ModuleProps) {
   const handleGenerate = async () => {
     if (!question.trim() || isLoading) return;
 
-    if (!isConfigured) {
-      toast({
-        title: "API Key Required",
-        description: "Please configure your OpenAI API key in settings.",
-        variant: "destructive"
-      });
-      setShowSettings(true);
-      return;
-    }
-
     setIsLoading(true);
     setResponse("");
 
     try {
-      openAIService.setApiKey(settings.apiKey);
-      
       const systemPrompt = `You are a wise bibliomantic oracle that provides insights through literary interpretation. 
 
 When given a question, you should:

@@ -22,10 +22,15 @@ export interface OpenAIResponse {
 
 export class OpenAIService {
   private static instance: OpenAIService;
-  private apiKey: string | null = null;
+  private apiKey: string;
   private baseUrl = 'https://api.openai.com/v1';
 
-  private constructor() {}
+  private constructor() {
+    this.apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    if (!this.apiKey) {
+      throw new Error('VITE_OPENAI_API_KEY not found in environment variables');
+    }
+  }
 
   static getInstance(): OpenAIService {
     if (!OpenAIService.instance) {
@@ -34,19 +39,11 @@ export class OpenAIService {
     return OpenAIService.instance;
   }
 
-  setApiKey(apiKey: string) {
-    this.apiKey = apiKey;
-  }
-
   setBaseUrl(url: string) {
     this.baseUrl = url;
   }
 
   async generateResponse(request: OpenAIRequest): Promise<OpenAIResponse> {
-    if (!this.apiKey) {
-      throw new Error('OpenAI API key not configured');
-    }
-
     const {
       prompt,
       model = 'gpt-4o-mini',
@@ -112,10 +109,6 @@ export class OpenAIService {
     onChunk: (chunk: string) => void,
     onComplete: (response: OpenAIResponse) => void
   ): Promise<void> {
-    if (!this.apiKey) {
-      throw new Error('OpenAI API key not configured');
-    }
-
     const {
       prompt,
       model = 'gpt-4o-mini',

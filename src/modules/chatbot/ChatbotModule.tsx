@@ -41,16 +41,6 @@ export function ChatbotModule({ onBack }: ModuleProps) {
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
-    if (!isConfigured) {
-      toast({
-        title: "API Key Required",
-        description: "Please configure your OpenAI API key in settings.",
-        variant: "destructive"
-      });
-      setShowSettings(true);
-      return;
-    }
-
     const userMessage: Message = {
       id: Date.now().toString(),
       content: input.trim(),
@@ -63,8 +53,6 @@ export function ChatbotModule({ onBack }: ModuleProps) {
     setIsLoading(true);
 
     try {
-      openAIService.setApiKey(settings.apiKey);
-      
       const request: OpenAIRequest = {
         prompt: input.trim(),
         systemPrompt: "You are a helpful AI assistant. Provide clear, concise, and helpful responses.",

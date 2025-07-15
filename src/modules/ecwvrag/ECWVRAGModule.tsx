@@ -53,12 +53,8 @@ export function ECWVRAGModule({ onBack }: ModuleProps) {
   };
 
   const initializeConversation = async () => {
-    if (!isConfigured) return;
-
     setIsLoading(true);
     try {
-      openAIRAGService.setApiKey(settings.apiKey);
-      
       const response = await openAIRAGService.initializeConversation(conversationId);
       
       const welcomeMessage: Message = {
@@ -90,16 +86,6 @@ export function ECWVRAGModule({ onBack }: ModuleProps) {
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
-    if (!isConfigured) {
-      toast({
-        title: "API Key Required",
-        description: "Please configure your OpenAI API key in settings.",
-        variant: "destructive"
-      });
-      setShowSettings(true);
-      return;
-    }
-
     if (!isInitialized) {
       toast({
         title: "Inicializando...",
@@ -121,8 +107,6 @@ export function ECWVRAGModule({ onBack }: ModuleProps) {
     setIsLoading(true);
 
     try {
-      openAIRAGService.setApiKey(settings.apiKey);
-      
       const request: OpenAIRAGRequest = {
         message: input.trim(),
         vectorStore: 'ECWV',

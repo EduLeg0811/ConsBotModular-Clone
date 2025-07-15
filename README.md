@@ -6,6 +6,22 @@
 
 ## How can I edit this code?
 
+## Configuração da API Key OpenAI
+
+Para usar os módulos de IA, você precisa configurar sua chave da OpenAI:
+
+1. **Crie um arquivo `.env` na raiz do projeto**
+2. **Adicione sua chave da OpenAI:**
+   ```
+   VITE_OPENAI_API_KEY=sua_chave_aqui
+   ```
+3. **Reinicie o servidor de desenvolvimento**
+
+**Importante:** 
+- O arquivo `.env` já está no `.gitignore` para proteger sua chave
+- Use o arquivo `.env.example` como modelo
+- Nunca compartilhe sua chave da OpenAI publicamente
+
 There are several ways of editing your application.
 
 **Use Lovable**
