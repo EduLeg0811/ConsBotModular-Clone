@@ -188,7 +188,6 @@ class OpenAIRAGService {
       instructions,
       input: finalMessage,
       temperature,
-      max_tokens: maxTokens,
       store: true,
       previous_response_id: conversationData.previousResponseId
     };
