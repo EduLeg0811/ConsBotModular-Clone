@@ -1,5 +1,12 @@
-// OpenAI RAG Service with Vector Store Support and Response API
-// Based on the specifications provided
+// OpenAI RAG Service with Response API
+// CRITICAL: This service uses ONLY the OpenAI Response API - NEVER use Chat Completions API
+// The Response API provides better context management and vector store integration
+
+import { OpenAI } from 'openai';
+
+// ================================================================================================
+// TYPES AND INTERFACES
+// ================================================================================================
 
 export interface OpenAIRAGRequest {
   message: string;
@@ -16,18 +23,52 @@ export interface OpenAIRAGRequest {
 export interface OpenAIRAGResponse {
   content: string;
   sources?: string[];
-  usage?: {
-    promptTokens: number;
-    completionTokens: number;
-    totalTokens: number;
-  };
+  usage?: TokenUsage;
   model: string;
   conversationId?: string;
   responseId?: string;
 }
 
-// Vector Store IDs mapping
-const VECTOR_STORE_IDS = {
+interface TokenUsage {
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+}
+
+interface ConversationData {
+  previousResponseId: string;
+  isFirstAccess: boolean;
+}
+
+interface VectorStoreTool {
+  type: "file_search";
+  vector_store_ids: string[];
+  max_num_results?: number;
+}
+
+interface ResponseAPIParams {
+  model: string;
+  input: string;
+  instructions: string;
+  temperature: number;
+  store: boolean;
+  previous_response_id?: string;
+  tools?: VectorStoreTool[];
+}
+
+// ================================================================================================
+// CONSTANTS AND CONFIGURATION
+// ================================================================================================
+
+const DEFAULT_MODEL = 'gpt-4o-mini';
+const DEFAULT_TEMPERATURE = 0.7;
+const DEFAULT_MAX_TOKENS = 2000;
+const DEFAULT_TOP_K = 50;
+const DEFAULT_INSTRUCTION_PROMPT = 'Você é um assistente especialista em Conscienciologia. Responda de forma objetiva e precisa baseado nas fontes fornecidas.';
+const DEFAULT_PRE_PROMPT = '';
+
+// Vector Store IDs mapping - Maps friendly names to actual OpenAI vector store IDs
+const VECTOR_STORE_IDS: Record<string, string> = {
   'ALLWV': 'vs_6870595f39dc8191b364854cf46ffc74',
   'DAC': 'vs_683f352912848191a17ca98ab24a19a5',
   'LO': 'vs_686735d972cc81919ceec7a4ccf63a57',
@@ -41,805 +82,280 @@ const VECTOR_STORE_IDS = {
   'EDUNOTES': 'vs_68726a6993fc8191ba63b14a9243076a'
 };
 
-// Constants
-const DEFAULT_MODEL = 'gpt-4o-mini';
-const DEFAULT_TEMPERATURE = 0.7;
-const DEFAULT_MAX_TOKENS = 2000;
-const DEFAULT_TOP_K = 50;
-const DEFAULT_INSTRUCTION_PROMPT = 'Você é um assistente especialista em Conscienciologia. Responda de forma objetiva e precisa baseado nas fontes fornecidas.';
+// ================================================================================================
+// CONVERSATION STORAGE MANAGEMENT
+// ================================================================================================
 
-// Debug callback interface
-interface DebugUpdate {
-  type: 'request' | 'response' | 'error';
-  data?: any;
-  error?: string;
-  details?: any;
-  timestamp: string;
-  note?: string;
-}
+class ConversationStorage {
+  private storage = new Map<string, ConversationData>();
 
-// Universal OpenAI Response API parameters interface
-interface OpenAIResponseParams {
-  model?: string;
-  input: string;
-  instructions?: string;
-  previous_response_id?: string;
-  tools?: any[];
-  temperature?: number;
-  store?: boolean;
-  metadata?: any;
-}
-
-/**
- * UNIVERSAL OPENAI RESPONSE API CALLER - Makes a call to OpenAI's Response API with all available parameters
- * @param params - All parameters for the OpenAI Response API
- * @param onDebugUpdate - Optional callback for debug information
- * @returns The full response from OpenAI
- */
-export const callOpenAIResponse = async (
-  {
-    model = DEFAULT_MODEL,
-    input,
-    instructions = DEFAULT_INSTRUCTION_PROMPT,
-    previous_response_id,
-    tools,
-    temperature = DEFAULT_TEMPERATURE,
-    store = true,
-    metadata
-  }: OpenAIResponseParams,
-  onDebugUpdate: ((update: DebugUpdate) => void) | null = null
-): Promise<any> => {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
-  const baseUrl = 'https://api.openai.com/v1';
-
-  try {
-    // Build the request parameters object
-    const requestParams: any = {
-      model,
-      input,
-      instructions,
-      temperature,
-      store
-    };
-
-    // Add optional parameters only if they exist
-    if (previous_response_id) {
-      requestParams.previous_response_id = previous_response_id;
-    }
-    if (tools && tools.length > 0) {
-      requestParams.tools = tools;
-    }
-    if (metadata) {
-      requestParams.metadata = metadata;
-    }
-
-    // DEBUG: Log the request if debug callback is provided
-    if (onDebugUpdate) {
-      onDebugUpdate({
-        type: 'request',
-        data: requestParams,
-        timestamp: new Date().toISOString(),
-        note: 'UNIVERSAL OPENAI RESPONSE API CALL'
-      });
-    }
-
-    // Make the API call
-    const response = await fetch(`${baseUrl}/responses`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify(requestParams)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      
-      // Enhanced error handling
-      const errorMessage = errorData.error?.message || 'Unknown error occurred';
-      const errorDetails = {
-        status: response.status,
-        code: errorData.error?.code,
-        type: errorData.error?.type,
-        param: errorData.error?.param,
-        timestamp: new Date().toISOString()
-      };
-      
-      // Log detailed error if debug is enabled
-      if (onDebugUpdate) {
-        onDebugUpdate({
-          type: 'error',
-          error: errorMessage,
-          details: errorDetails,
-          timestamp: new Date().toISOString()
-        });
-      }
-      
-      throw new Error(`OpenAI API Error: ${errorMessage}`);
-    }
-
-    const data = await response.json();
-
-    // DEBUG: Log the response if debug callback is provided
-    if (onDebugUpdate) {
-      onDebugUpdate({
-        type: 'response',
-        data: data,
-        timestamp: new Date().toISOString(),
-        note: 'OPENAI RESPONSE RECEIVED'
-      });
-    }
-
-    return data;
-  } catch (error) {
-    console.error('OpenAI Response API Error:', error);
-    
-    // Enhanced error handling for fetch errors
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    const errorDetails = {
-      timestamp: new Date().toISOString(),
-      originalError: error
-    };
-    
-    // Log detailed error if debug is enabled
-    if (onDebugUpdate) {
-      onDebugUpdate({
-        type: 'error',
-        error: errorMessage,
-        details: errorDetails,
-        timestamp: new Date().toISOString()
-      });
-    }
-    
-    throw new Error(`OpenAI API Error: ${errorMessage}`);
+  get(conversationId: string): ConversationData | null {
+    return this.storage.get(conversationId) || null;
   }
-};</parameter>
-</invoke>
-<invoke name="file">
-<parameter name="filePath">src/services/openai-rag.ts</parameter>
-<parameter name="contentType">diff</parameter>
-<parameter name="content">@@ .. @@
 
-// Debug callback interface
-interface DebugUpdate {
-  type: 'request' | 'response' | 'error';
-  data?: any;
-  error?: string;
-  details?: any;
-  timestamp: string;
-  note?: string;
-}
-
-// Universal OpenAI Response API parameters interface
-interface OpenAIResponseParams {
-  model?: string;
-  input: string;
-  instructions?: string;
-  previous_response_id?: string;
-  tools?: any[];
-  temperature?: number;
-  store?: boolean;
-  metadata?: any;
-}
-
-/**
- * UNIVERSAL OPENAI RESPONSE API CALLER - Makes a call to OpenAI's Response API with all available parameters
- * @param params - All parameters for the OpenAI Response API
- * @param onDebugUpdate - Optional callback for debug information
- * @returns The full response from OpenAI
- */
-export const callOpenAIResponse = async (
-  {
-    model = DEFAULT_MODEL,
-    input,
-    instructions = DEFAULT_INSTRUCTION_PROMPT,
-    previous_response_id,
-    tools,
-    temperature = DEFAULT_TEMPERATURE,
-    store = true,
-    metadata
-  }: OpenAIResponseParams,
-  onDebugUpdate: ((update: DebugUpdate) => void) | null = null
-): Promise<any> => {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
-  const baseUrl = 'https://api.openai.com/v1';
-
-  try {
-    // Build the request parameters object
-    const requestParams: any = {
-      model,
-      input,
-      instructions,
-      temperature,
-      store
-    };
-
-    // Add optional parameters only if they exist
-    if (previous_response_id) {
-      requestParams.previous_response_id = previous_response_id;
-    }
-    if (tools && tools.length > 0) {
-      requestParams.tools = tools;
-    }
-    if (metadata) {
-      requestParams.metadata = metadata;
-    }
-
-    // DEBUG: Log the request if debug callback is provided
-    if (onDebugUpdate) {
-      onDebugUpdate({
-        type: 'request',
-        data: requestParams,
-        timestamp: new Date().toISOString(),
-        note: 'UNIVERSAL OPENAI RESPONSE API CALL'
-      });
-    }
-
-    // Make the API call
-    const response = await fetch(`${baseUrl}/responses`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify(requestParams)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      
-      // Enhanced error handling
-      const errorMessage = errorData.error?.message || 'Unknown error occurred';
-      const errorDetails = {
-        status: response.status,
-        code: errorData.error?.code,
-        type: errorData.error?.type,
-        param: errorData.error?.param,
-        timestamp: new Date().toISOString()
-      };
-      
-      // Log detailed error if debug is enabled
-      if (onDebugUpdate) {
-        onDebugUpdate({
-          type: 'error',
-          error: errorMessage,
-          details: errorDetails,
-          timestamp: new Date().toISOString()
-        });
-      }
-      
-      throw new Error(`OpenAI API Error: ${errorMessage}`);
-    }
-
-    const data = await response.json();
-
-    // DEBUG: Log the response if debug callback is provided
-    if (onDebugUpdate) {
-      onDebugUpdate({
-        type: 'response',
-        data: data,
-        timestamp: new Date().toISOString(),
-        note: 'OPENAI RESPONSE RECEIVED'
-      });
-    }
-
-    return data;
-  } catch (error) {
-    console.error('OpenAI Response API Error:', error);
-    
-    // Enhanced error handling for fetch errors
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    const errorDetails = {
-      timestamp: new Date().toISOString(),
-      originalError: error
-    };
-    
-    // Log detailed error if debug is enabled
-    if (onDebugUpdate) {
-      onDebugUpdate({
-        type: 'error',
-        error: errorMessage,
-        details: errorDetails,
-        timestamp: new Date().toISOString()
-      });
-    }
-    
-    throw new Error(`OpenAI API Error: ${errorMessage}`);
+  set(conversationId: string, data: ConversationData): void {
+    this.storage.set(conversationId, data);
   }
-};</parameter>
-</invoke>
-<invoke name="file">
-<parameter name="filePath">src/services/openai-rag.ts</parameter>
-<parameter name="contentType">diff</parameter>
-<parameter name="content">@@ .. @@
 
-// Debug callback interface
-interface DebugUpdate {
-  type: 'request' | 'response' | 'error';
-  data?: any;
-  error?: string;
-  details?: any;
-  timestamp: string;
-  note?: string;
-}
-
-// Universal OpenAI Response API parameters interface
-interface OpenAIResponseParams {
-  model?: string;
-  input: string;
-  instructions?: string;
-  previous_response_id?: string;
-  tools?: any[];
-  temperature?: number;
-  store?: boolean;
-  metadata?: any;
-}
-
-/**
- * UNIVERSAL OPENAI RESPONSE API CALLER - Makes a call to OpenAI's Response API with all available parameters
- * @param params - All parameters for the OpenAI Response API
- * @param onDebugUpdate - Optional callback for debug information
- * @returns The full response from OpenAI
- */
-export const callOpenAIResponse = async (
-  {
-    model = DEFAULT_MODEL,
-    input,
-    instructions = DEFAULT_INSTRUCTION_PROMPT,
-    previous_response_id,
-    tools,
-    temperature = DEFAULT_TEMPERATURE,
-    store = true,
-    metadata
-  }: OpenAIResponseParams,
-  onDebugUpdate: ((update: DebugUpdate) => void) | null = null
-): Promise<any> => {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
-  const baseUrl = 'https://api.openai.com/v1';
-
-  try {
-    // Build the request parameters object
-    const requestParams: any = {
-      model,
-      input,
-      instructions,
-      temperature,
-      store
-    };
-
-    // Add optional parameters only if they exist
-    if (previous_response_id) {
-      requestParams.previous_response_id = previous_response_id;
-    }
-    if (tools && tools.length > 0) {
-      requestParams.tools = tools;
-    }
-    if (metadata) {
-      requestParams.metadata = metadata;
-    }
-
-    // DEBUG: Log the request if debug callback is provided
-    if (onDebugUpdate) {
-      onDebugUpdate({
-        type: 'request',
-        data: requestParams,
-        timestamp: new Date().toISOString(),
-        note: 'UNIVERSAL OPENAI RESPONSE API CALL'
-      });
-    }
-
-    // Make the API call
-    const response = await fetch(`${baseUrl}/responses`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify(requestParams)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      
-      // Enhanced error handling
-      const errorMessage = errorData.error?.message || 'Unknown error occurred';
-      const errorDetails = {
-        status: response.status,
-        code: errorData.error?.code,
-        type: errorData.error?.type,
-        param: errorData.error?.param,
-        timestamp: new Date().toISOString()
-      };
-      
-      // Log detailed error if debug is enabled
-      if (onDebugUpdate) {
-        onDebugUpdate({
-          type: 'error',
-          error: errorMessage,
-          details: errorDetails,
-          timestamp: new Date().toISOString()
-        });
-      }
-      
-      throw new Error(`OpenAI API Error: ${errorMessage}`);
-    }
-
-    const data = await response.json();
-
-    // DEBUG: Log the response if debug callback is provided
-    if (onDebugUpdate) {
-      onDebugUpdate({
-        type: 'response',
-        data: data,
-        timestamp: new Date().toISOString(),
-        note: 'OPENAI RESPONSE RECEIVED'
-      });
-    }
-
-    return data;
-  } catch (error) {
-    console.error('OpenAI Response API Error:', error);
-    
-    // Enhanced error handling for fetch errors
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    const errorDetails = {
-      timestamp: new Date().toISOString(),
-      originalError: error
-    };
-    
-    // Log detailed error if debug is enabled
-    if (onDebugUpdate) {
-      onDebugUpdate({
-        type: 'error',
-        error: errorMessage,
-        details: errorDetails,
-        timestamp: new Date().toISOString()
-      });
-    }
-    
-    throw new Error(`OpenAI API Error: ${errorMessage}`);
+  isFirstAccess(conversationId: string): boolean {
+    const data = this.get(conversationId);
+    return !data || data.isFirstAccess;
   }
-};</parameter>
-</invoke>
-<invoke name="file">
-<parameter name="filePath">src/services/openai-rag.ts</parameter>
-<parameter name="contentType">diff</parameter>
-<parameter name="content">@@ .. @@
 
-// Debug callback interface
-interface DebugUpdate {
-  type: 'request' | 'response' | 'error';
-  data?: any;
-  error?: string;
-  details?: any;
-  timestamp: string;
-  note?: string;
-}
-
-// Universal OpenAI Response API parameters interface
-interface OpenAIResponseParams {
-  model?: string;
-  input: string;
-  instructions?: string;
-  previous_response_id?: string;
-  tools?: any[];
-  temperature?: number;
-  store?: boolean;
-  metadata?: any;
-}
-
-/**
- * UNIVERSAL OPENAI RESPONSE API CALLER - Makes a call to OpenAI's Response API with all available parameters
- * @param params - All parameters for the OpenAI Response API
- * @param onDebugUpdate - Optional callback for debug information
- * @returns The full response from OpenAI
- */
-export const callOpenAIResponse = async (
-  {
-    model = DEFAULT_MODEL,
-    input,
-    instructions = DEFAULT_INSTRUCTION_PROMPT,
-    previous_response_id,
-    tools,
-    temperature = DEFAULT_TEMPERATURE,
-    store = true,
-    metadata
-  }: OpenAIResponseParams,
-  onDebugUpdate: ((update: DebugUpdate) => void) | null = null
-): Promise<any> => {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
-  const baseUrl = 'https://api.openai.com/v1';
-
-  try {
-    // Build the request parameters object
-    const requestParams: any = {
-      model,
-      input,
-      instructions,
-      temperature,
-      store
-    };
-
-    // Add optional parameters only if they exist
-    if (previous_response_id) {
-      requestParams.previous_response_id = previous_response_id;
-    }
-    if (tools && tools.length > 0) {
-      requestParams.tools = tools;
-    }
-    if (metadata) {
-      requestParams.metadata = metadata;
-    }
-
-    // DEBUG: Log the request if debug callback is provided
-    if (onDebugUpdate) {
-      onDebugUpdate({
-        type: 'request',
-        data: requestParams,
-        timestamp: new Date().toISOString(),
-        note: 'UNIVERSAL OPENAI RESPONSE API CALL'
-      });
-    }
-
-    // Make the API call
-    const response = await fetch(`${baseUrl}/responses`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify(requestParams)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      
-      // Enhanced error handling
-      const errorMessage = errorData.error?.message || 'Unknown error occurred';
-      const errorDetails = {
-        status: response.status,
-        code: errorData.error?.code,
-        type: errorData.error?.type,
-        param: errorData.error?.param,
-        timestamp: new Date().toISOString()
-      };
-      
-      // Log detailed error if debug is enabled
-      if (onDebugUpdate) {
-        onDebugUpdate({
-          type: 'error',
-          error: errorMessage,
-          details: errorDetails,
-          timestamp: new Date().toISOString()
-        });
-      }
-      
-      throw new Error(`OpenAI API Error: ${errorMessage}`);
-    }
-
-    const data = await response.json();
-
-    // DEBUG: Log the response if debug callback is provided
-    if (onDebugUpdate) {
-      onDebugUpdate({
-        type: 'response',
-        data: data,
-        timestamp: new Date().toISOString(),
-        note: 'OPENAI RESPONSE RECEIVED'
-      });
-    }
-
-    return data;
-  } catch (error) {
-    console.error('OpenAI Response API Error:', error);
-    
-    // Enhanced error handling for fetch errors
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    const errorDetails = {
-      timestamp: new Date().toISOString(),
-      originalError: error
-    };
-    
-    // Log detailed error if debug is enabled
-    if (onDebugUpdate) {
-      onDebugUpdate({
-        type: 'error',
-        error: errorMessage,
-        details: errorDetails,
-        timestamp: new Date().toISOString()
-      });
-    }
-    
-    throw new Error(`OpenAI API Error: ${errorMessage}`);
+  reset(conversationId: string): void {
+    this.storage.delete(conversationId);
   }
-};</parameter>
-</invoke>
-<invoke name="file">
-<parameter name="filePath">src/services/openai-rag.ts</parameter>
-<parameter name="contentType">diff</parameter>
-<parameter name="content">@@ .. @@
-
-// Debug callback interface
-interface DebugUpdate {
-  type: 'request' | 'response' | 'error';
-  data?: any;
-  error?: string;
-  details?: any;
-  timestamp: string;
-  note?: string;
 }
 
-// Universal OpenAI Response API parameters interface
-interface OpenAIResponseParams {
-  model?: string;
-  input: string;
-  instructions?: string;
-  previous_response_id?: string;
-  tools?: any[];
-  temperature?: number;
-  store?: boolean;
-  metadata?: any;
-}
+// ================================================================================================
+// OPENAI RAG SERVICE CLASS
+// ================================================================================================
 
-/**
- * UNIVERSAL OPENAI RESPONSE API CALLER - Makes a call to OpenAI's Response API with all available parameters
- * @param params - All parameters for the OpenAI Response API
- * @param onDebugUpdate - Optional callback for debug information
- * @returns The full response from OpenAI
- */
-export const callOpenAIResponse = async (
-  {
-    model = DEFAULT_MODEL,
-    input,
-    instructions = DEFAULT_INSTRUCTION_PROMPT,
-    previous_response_id,
-    tools,
-    temperature = DEFAULT_TEMPERATURE,
-    store = true,
-    metadata
-  }: OpenAIResponseParams,
-  onDebugUpdate: ((update: DebugUpdate) => void) | null = null
-): Promise<any> => {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
-  const baseUrl = 'https://api.openai.com/v1';
+class OpenAIRAGService {
+  private static instance: OpenAIRAGService;
+  private openai: OpenAI;
+  private conversationStorage: ConversationStorage;
 
-  try {
-    // Build the request parameters object
-    const requestParams: any = {
-      model,
-      input,
-      instructions,
-      temperature,
-      store
-    };
-
-    // Add optional parameters only if they exist
-    if (previous_response_id) {
-      requestParams.previous_response_id = previous_response_id;
-    }
-    if (tools && tools.length > 0) {
-      requestParams.tools = tools;
-    }
-    if (metadata) {
-      requestParams.metadata = metadata;
+  private constructor() {
+    // CRITICAL: Initialize OpenAI client for Response API usage ONLY
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY || '';
+    
+    if (!apiKey) {
+      console.error('❌ No OpenAI API key found in environment variables');
+      throw new Error('OpenAI API key is required');
     }
 
-    // DEBUG: Log the request if debug callback is provided
-    if (onDebugUpdate) {
-      onDebugUpdate({
-        type: 'request',
-        data: requestParams,
-        timestamp: new Date().toISOString(),
-        note: 'UNIVERSAL OPENAI RESPONSE API CALL'
-      });
-    }
-
-    // Make the API call
-    const response = await fetch(`${baseUrl}/responses`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify(requestParams)
+    this.openai = new OpenAI({
+      apiKey,
+      dangerouslyAllowBrowser: true // Required for browser usage
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      
-      // Enhanced error handling
-      const errorMessage = errorData.error?.message || 'Unknown error occurred';
-      const errorDetails = {
-        status: response.status,
-        code: errorData.error?.code,
-        type: errorData.error?.type,
-        param: errorData.error?.param,
-        timestamp: new Date().toISOString()
-      };
-      
-      // Log detailed error if debug is enabled
-      if (onDebugUpdate) {
-        onDebugUpdate({
-          type: 'error',
-          error: errorMessage,
-          details: errorDetails,
-          timestamp: new Date().toISOString()
-        });
-      }
-      
-      throw new Error(`OpenAI API Error: ${errorMessage}`);
+    this.conversationStorage = new ConversationStorage();
+  }
+
+  static getInstance(): OpenAIRAGService {
+    if (!OpenAIRAGService.instance) {
+      OpenAIRAGService.instance = new OpenAIRAGService();
     }
+    return OpenAIRAGService.instance;
+  }
 
-    const data = await response.json();
+  // ================================================================================================
+  // UTILITY METHODS
+  // ================================================================================================
 
-    // DEBUG: Log the response if debug callback is provided
-    if (onDebugUpdate) {
-      onDebugUpdate({
-      }
-      )
+  /**
+   * Maps friendly vector store names to actual OpenAI vector store IDs
+   */
+  private getVectorStoreId(vectorStore: string = 'ECWV'): string {
+    const storeId = VECTOR_STORE_IDS[vectorStore];
+    if (!storeId) {
+      throw new Error(`Unknown vector store: ${vectorStore}`);
     }
-    try {
-      const data = await callOpenAIResponse({
-        model: DEFAULT_MODEL,
-        input: firstMessage,
-        instructions: 'Você é um assistente especialista em Conscienciologia. Responda de forma objetiva, sincera, sem se preocupar em agradar o usuário. Sempre preserve a marcação original de Markdown das fontes originais (asteriscos).',
-        store: true
-      }, (debugUpdate) => {
-        console.log('🔍 RAG Init Debug:', debugUpdate);
-      });
+    return storeId;
+  }
 
-      conversationStorage.set(conversationId, {
-        previousResponseId: data.id,
-        isFirstAccess: false
-      });
-
-      return {
-        content: data.output_text || data.content || '',
-        model: data.model || DEFAULT_MODEL,
-        conversationId,
-        responseId: data.id
-      };
-    } catch (error) {
-      const data = await callOpenAIResponse({
-        model,
-        input: finalMessage,
-        instructions,
-        temperature,
-        store: true,
-        previous_response_id: conversationData.previousResponseId,
-        tools
-      }, (debugUpdate) => {
-        console.log('🔍 RAG Call Debug:', debugUpdate);
-        data: data,
-      }
-      )
-      temperature = DEFAULT_TEMPERATURE,
-      finalMessage = `${prePrompt}\n\nQuery do usuário: ${message}`;
+  /**
+   * Creates vector store tools configuration for file search
+   */
+  private createVectorStoreTools(vectorStore: string, topK: number): VectorStoreTool[] {
+    if (vectorStore === 'None') {
+      return [];
     }
 
     const vectorStoreId = this.getVectorStoreId(vectorStore);
-    const conversationData = conversationStorage.get(conversationId);
-    if (!conversationData) {
-        content: data.output_text || data.content || '',
-        sources: data.sources || [],
-        usage: data.usage ? {
-          promptTokens: data.usage.prompt_tokens,
-          completionTokens: data.usage.completion_tokens,
-          totalTokens: data.usage.total_tokens
-        } : undefined,
-        model: data.model || model,
-    }
-
-    const tools = vectorStore !== 'None' ? [{
+    return [{
       type: "file_search",
       vector_store_ids: [vectorStoreId],
-      console.error('❌ RAG Call Error:', error);
-    }] : undefined;
+      max_num_results: topK
+    }];
+  }
 
+  /**
+   * Formats the final message with pre-prompt if provided
+   */
+  private formatMessage(message: string, prePrompt?: string): string {
+    if (!prePrompt || !prePrompt.trim()) {
+      return message;
+    }
+    return `${prePrompt}\n\nQuery do usuário: ${message}`;
+  }
+
+  /**
+   * Builds request parameters for the Response API
+   */
+  private buildRequestParams(
+    message: string,
+    options: Partial<OpenAIRAGRequest>,
+    previousResponseId?: string
+  ): ResponseAPIParams {
+    const {
+      model = DEFAULT_MODEL,
+      temperature = DEFAULT_TEMPERATURE,
+      instructions = DEFAULT_INSTRUCTION_PROMPT,
+      prePrompt = DEFAULT_PRE_PROMPT,
+      vectorStore = 'ECWV',
+      topK = DEFAULT_TOP_K
+    } = options;
+
+    const finalMessage = this.formatMessage(message, prePrompt);
+    const tools = this.createVectorStoreTools(vectorStore, topK);
+
+    const params: ResponseAPIParams = {
+      model,
+      input: finalMessage,
+      instructions,
+      temperature,
+      store: true // Always store for conversation continuity
+    };
+
+    // Add previous response ID for conversation continuity
+    if (previousResponseId) {
+      params.previous_response_id = previousResponseId;
+    }
+
+    // Add tools only if vector store is specified
+    if (tools.length > 0) {
+      params.tools = tools;
+    }
+
+    return params;
+  }
+
+  /**
+   * Processes the Response API response and extracts relevant data
+   */
+  private processResponse(response: any, conversationId: string): OpenAIRAGResponse {
+    // CRITICAL: Use response.output_text from Response API - NOT chat completions format
+    const content = response.output_text || '';
+    
+    // Extract sources from response if available
+    const sources: string[] = [];
+    // Note: Sources extraction logic may need adjustment based on actual Response API format
+    
+    // Extract usage information
+    const usage: TokenUsage | undefined = response.usage ? {
+      promptTokens: response.usage.prompt_tokens || 0,
+      completionTokens: response.usage.completion_tokens || 0,
+      totalTokens: response.usage.total_tokens || 0
+    } : undefined;
+
+    return {
+      content,
+      sources,
+      usage,
+      model: response.model || DEFAULT_MODEL,
+      conversationId,
+      responseId: response.id
+    };
+  }
+
+  // ================================================================================================
+  // PUBLIC API METHODS
+  // ================================================================================================
+
+  /**
+   * Initializes a new conversation with a welcome message
+   * CRITICAL: Must be called before any other conversation methods
+   */
+  async initializeConversation(conversationId: string): Promise<OpenAIRAGResponse> {
     try {
-      throw new Error('Failed to generate RAG response');
-        model: DEFAULT_MODEL,
+      const welcomeMessage = 'Olá! Sou seu assistente especializado em Conscienciologia. Como posso ajudá-lo hoje?';
+      
+      const requestParams = this.buildRequestParams(welcomeMessage, {
+        instructions: 'Você é um assistente especialista em Conscienciologia. Responda de forma objetiva, sincera, sem se preocupar em agradar o usuário. Sempre preserve a marcação original de Markdown das fontes originais (asteriscos).'
+      });
+
+      // CRITICAL: Use Response API - NEVER chat completions
+      const response = await this.openai.responses.create(requestParams);
+
+      // Store conversation data for continuity
+      this.conversationStorage.set(conversationId, {
+        previousResponseId: response.id,
+        isFirstAccess: false
+      });
+
+      return this.processResponse(response, conversationId);
+    } catch (error) {
+      console.error('❌ Conversation initialization error:', error);
+      throw new Error('Failed to initialize conversation');
     }
   }
+
+  /**
+   * Main method for RAG-enabled conversations using Response API
+   * CRITICAL: Uses ONLY Response API with vector store integration
+   */
+  async OpenAI_Call(request: OpenAIRAGRequest): Promise<OpenAIRAGResponse> {
+    const { message, conversationId } = request;
+
+    if (!conversationId) {
+      throw new Error('Conversation ID is required');
+    }
+
+    // Check if conversation is initialized
+    if (this.conversationStorage.isFirstAccess(conversationId)) {
+      throw new Error('Conversation not initialized. Call initializeConversation first.');
+    }
+
+    try {
+      // Get conversation data for continuity
+      const conversationData = this.conversationStorage.get(conversationId);
+      if (!conversationData) {
+        throw new Error('Conversation data not found');
+      }
+
+      // Build request parameters with previous response ID
+      const requestParams = this.buildRequestParams(
+        message,
+        request,
+        conversationData.previousResponseId
+      );
+
+      // CRITICAL: Use Response API - NEVER chat completions
+      const response = await this.openai.responses.create(requestParams);
+
+      // Update conversation storage with new response ID
+      this.conversationStorage.set(conversationId, {
+        previousResponseId: response.id,
+        isFirstAccess: false
+      });
+
+      return this.processResponse(response, conversationId);
+    } catch (error) {
+      console.error('❌ RAG call error:', error);
+      throw new Error('Failed to generate RAG response');
+    }
+  }
+
+  /**
+   * Resets a conversation, clearing all stored context
+   */
+  resetConversation(conversationId: string): void {
+    this.conversationStorage.reset(conversationId);
+  }
+
+  /**
+   * Checks if a conversation exists and is initialized
+   */
+  isConversationInitialized(conversationId: string): boolean {
+    return !this.conversationStorage.isFirstAccess(conversationId);
+  }
+
+  /**
+   * Gets available vector stores
+   */
+  getAvailableVectorStores(): string[] {
+    return Object.keys(VECTOR_STORE_IDS);
+  }
 }
+
+// ================================================================================================
+// EXPORTS
+// ================================================================================================
+
+// Export singleton instance
+export const openAIRAGService = OpenAIRAGService.getInstance();
+
+// Export types for external use
+export type { OpenAIRAGRequest, OpenAIRAGResponse, TokenUsage };
