@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ArrowRight, Sparkles, Zap } from "lucide-react";
 
 interface HeroSectionProps {
@@ -9,6 +10,11 @@ interface HeroSectionProps {
 export function HeroSection({ onGetStarted }: HeroSectionProps) {
   return (
     <section className="relative min-h-[80vh] flex items-center justify-center text-center px-4 overflow-hidden">
+      {/* Theme Toggle - Fixed Position */}
+      <div className="fixed top-6 right-6 z-50">
+        <ThemeToggle />
+      </div>
+      
       {/* Background Elements */}
       <div className="absolute inset-0 bg-gradient-hero opacity-10" />
       <div className="absolute inset-0">
