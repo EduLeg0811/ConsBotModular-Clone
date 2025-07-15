@@ -38,7 +38,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           <br />
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Olá conscienciólogo!<br />
-            Descubra as ferramentas de IA para a pesquisa conscienciológica. <br />
+            Bem vindo à caixa de ferramentas de IA para a pesquisa conscienciológica. <br />
             Cada ferramenta é ideal para uma tarefa específica.<br />
             Se já sabe qual pretente usar, abra a caixa e escolha à vontade.<br />
             Se deseja que eu te oriente, explique o que precisa fazer e eu indico o que usar!
