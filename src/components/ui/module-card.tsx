@@ -30,24 +30,24 @@ export function ModuleCard({
         className
       )}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/8 to-accent/8 animate-float" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5" />
       <CardHeader className="relative">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-3 rounded-xl bg-gradient-primary text-white shadow-soft">
+            <div className="p-3 rounded-xl bg-gradient-primary text-white shadow-soft hover:shadow-glow transition-all duration-300">
               <Icon className="h-6 w-6" />
             </div>
             <div>
-              <CardTitle className="text-lg font-medium">{title}</CardTitle>
+              <CardTitle className="text-lg font-semibold text-foreground">{title}</CardTitle>
               {badge && (
-                <span className="inline-block px-3 py-1 text-xs font-medium bg-gradient-accent text-white rounded-full mt-2 shadow-soft">
+                <span className="inline-block px-3 py-1 text-xs font-semibold badge-accent rounded-full mt-2 shadow-soft">
                   {badge}
                 </span>
               )}
             </div>
           </div>
         </div>
-        <CardDescription className="text-sm text-muted-foreground mt-2">
+        <CardDescription className="text-sm text-foreground/75 mt-2 font-medium">
           {description}
         </CardDescription>
       </CardHeader>
@@ -56,7 +56,7 @@ export function ModuleCard({
           onClick={onClick}
           disabled={disabled}
           variant="default"
-          className="w-full interactive-hover btn-primary font-medium"
+          className="w-full interactive-hover btn-primary font-semibold"
         >
           Abrir Toolbox
         </Button>

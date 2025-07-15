@@ -31,12 +31,12 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             <br />
             <span className="relative">
               Assistant Hub
-              <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-hero text-transparent rounded-full" />
+              <div className="absolute -bottom-2 left-0 right-0 h-1 bg-gradient-primary rounded-full opacity-60" />
             </span>
           </h1>
           <br />
           <br />
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed font-medium">
             Olá conscienciólogo!<br />
             Bem-vindo à caixa de ferramentas de IA para a pesquisa conscienciológica. <br />
             Cada ferramenta é ideal para uma tarefa específica.<br />
@@ -50,7 +50,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           <Button 
             size="lg" 
             onClick={onGetStarted}
-            className="interactive-hover bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg shadow-glow"
+            className="interactive-hover btn-primary px-8 py-3 text-lg font-semibold"
           >
             <Zap className="h-5 w-5 mr-2" />
             Abrir Toolbox
@@ -60,7 +60,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           <Button 
             size="lg" 
             variant="outline"
-            className="interactive-hover px-8 py-3 text-lg"
+            className="interactive-hover px-8 py-3 text-lg font-semibold border-2 border-primary/30 text-primary hover:bg-primary/10"
           >
             Me ajude a escolher!
           </Button>
@@ -68,16 +68,16 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-2xl mx-auto">
           <div className="text-center space-y-2">
-            <div className="text-2xl font-bold text-primary">8</div>
-            <div className="text-sm text-muted-foreground">Módulos Disponíveis</div>
+            <div className="text-3xl font-bold text-primary">8</div>
+            <div className="text-sm text-foreground/70 font-medium">Módulos Disponíveis</div>
           </div>
           <div className="text-center space-y-2">
-            <div className="text-2xl font-bold text-primary">5</div>
-            <div className="text-sm text-muted-foreground">Ferramentas de Pesquisa</div>
+            <div className="text-3xl font-bold text-accent">5</div>
+            <div className="text-sm text-foreground/70 font-medium">Ferramentas de Pesquisa</div>
           </div>
           <div className="text-center space-y-2">
-            <div className="text-2xl font-bold text-primary">3</div>
-            <div className="text-sm text-muted-foreground">Ferramentas de Escrita</div>
+            <div className="text-3xl font-bold text-success">3</div>
+            <div className="text-sm text-foreground/70 font-medium">Ferramentas de Escrita</div>
           </div>
         </div>
       </div>
