@@ -56,7 +56,7 @@ export class OpenAIService {
   async generateResponse(request: OpenAIRequest): Promise<OpenAIResponse> {
     const {
       prompt,
-      model = 'gpt-4o-mini',
+      model = 'gpt-4.1-nano-2025-04-14',
       temperature = 0.7,
       maxTokens = 2000,
       topP = 1,
@@ -133,8 +133,8 @@ export class OpenAIService {
   ): Promise<void> {
     const {
       prompt,
-      model = 'gpt-4o-mini',
-      temperature = 0.7,
+      model = 'gpt-4.1-nano-2025-04-14',
+      temperature = 0.2,
       maxTokens = 2000,
       topP = 1,
       frequencyPenalty = 0,
