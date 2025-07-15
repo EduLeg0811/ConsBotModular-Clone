@@ -78,7 +78,7 @@ const VECTOR_STORE_IDS: Record<string, string> = {
 };
 
 
-const DEFAULT_MODEL = 'gpt-4.1-nano';
+const DEFAULT_MODEL = 'gpt-4.1-nano-2025-04-14';
 const DEFAULT_TEMPERATURE = 0.7;
 const DEFAULT_MAX_TOKENS = 2000;
 const DEFAULT_TOP_K = 50;
