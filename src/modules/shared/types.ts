@@ -13,8 +13,10 @@ export interface ModuleConfig {
 }
 
 export interface OpenAISettings {
-  apiKey: string;
   temperature?: number;
   maxTokens?: number;
   model?: string;
+  instructions?: string;
+  vectorStore?: string;
+  topK?: number;
 }

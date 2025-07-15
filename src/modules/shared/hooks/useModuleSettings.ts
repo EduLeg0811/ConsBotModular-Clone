@@ -2,10 +2,12 @@ import { useState, useCallback } from 'react';
 import { OpenAISettings } from '../types';
 
 const DEFAULT_SETTINGS: OpenAISettings = {
-  apiKey: '', // Removed default API key - now loaded from env
   temperature: 0.7,
   maxTokens: 2000,
-  model: 'gpt-4o-mini'
+  model: 'gpt-4o-mini',
+  instructions: 'Você é um assistente especialista em Conscienciologia. Responda de forma objetiva e precisa baseado nas fontes fornecidas.',
+  vectorStore: 'ALLWV',
+  topK: 20
 };
 
 export function useModuleSettings(moduleId: string) {

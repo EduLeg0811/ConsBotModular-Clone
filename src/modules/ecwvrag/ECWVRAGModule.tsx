@@ -164,6 +164,7 @@ export function ECWVRAGModule({ onBack }: ModuleProps) {
         settings={settings}
         onSettingsChange={updateSettings}
         onClose={() => setShowSettings(false)}
+        isRAGModule={true}
       />
     );
   }

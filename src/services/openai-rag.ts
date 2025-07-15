@@ -313,7 +313,12 @@ class OpenAIRAGService {
       // Build request parameters with previous response ID
       const requestParams = this.buildRequestParams(
         message,
-        request,
+        {
+          ...request,
+          instructions: request.instructions || DEFAULT_INSTRUCTION_PROMPT,
+          vectorStore: request.vectorStore || VECT_SELECTED,
+          topK: request.topK || DEFAULT_TOP_K
+        },
         conversationData.previousResponseId
       );
 
